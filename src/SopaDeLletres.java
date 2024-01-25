@@ -17,8 +17,33 @@ public class SopaDeLletres {
         while (trobades < 5) {
             mostrarSopaDeLletres();
             String paraula = Utils.LlegirString("Introdueix la paraula a buscar:", 1, 10);
+            if (buscarParaula(paraula)) {
+                System.out.println("Paraula trobada");
+                trobades++;
+            } else {
+                System.out.println("Paraula no trobada");
+            }
+
         }
     }
+
+    /**
+     * Busca una paraula a la sopa de lletres
+     * @param paraula a buscar
+     * @return true si la paraula ha estat trobada
+     */
+    public static boolean buscarParaula(String paraula) {
+        //TODO: Implementar la funció buscarParaula correctament ara només considera la paraula python
+        if (paraula.equalsIgnoreCase("python")) {
+            for (int i = 0; i < 6; i++) {
+                trobat[4][i] = true;
+            }
+            return true;
+        }else
+            return false;
+    }
+
+
 
     /**
      * Mostra la sopa de lletres per consola
@@ -55,15 +80,15 @@ public class SopaDeLletres {
      */
     public static char[][] crearSopaDeLletres(String cadena) {
         char[][] sopa = new char[10][10];
-        int posicio = 0;
-        for (int i = 0; i < sopa.length; i++) {
-            for (int j = 0; j < sopa[i].length; j++) {
-                sopa[i][j] = cadena.charAt(posicio);
-                posicio++;
-            }
-        }
+        crearSopaDeLletresRecursiu(sopa, cadena, 0, 0);
         return sopa;
     }
 
-
+    private static void crearSopaDeLletresRecursiu(char[][] sopa, String cadena, int i, int j) {
+        if (i < sopa.length && j < sopa[i].length) {
+            sopa[i][j] = cadena.charAt(i * sopa[i].length + j);
+            crearSopaDeLletresRecursiu(sopa, cadena, i, j + 1);  // Crida recursiva per la següent columna
+            crearSopaDeLletresRecursiu(sopa, cadena, i + 1, j);  // Crida recirsiva per la següent fila
+        }
+    }
 }
