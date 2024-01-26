@@ -25,6 +25,7 @@ public class SopaDeLletres {
             }
 
         }
+        System.out.println("Has trobat totes les paraules");
     }
 
     /**
@@ -33,16 +34,63 @@ public class SopaDeLletres {
      * @return true si la paraula ha estat trobada
      */
     public static boolean buscarParaula(String paraula) {
-        //TODO: Implementar la funció buscarParaula correctament ara només considera la paraula python
-        if (paraula.equalsIgnoreCase("python")) {
-            for (int i = 0; i < 6; i++) {
-                trobat[4][i] = true;
+        for (int i = 0; i < sopa.length; i++) {
+            for (int j = 0; j < sopa[i].length; j++) {
+                if (sopa[i][j] == paraula.charAt(0)) {
+                    int[][] coords = comprovarParaula(paraula, i, j, true);
+                    if (coords != null) {
+                        marcarParaulaTrobada(coords);
+                        return true;
+                    } else {
+                        coords = comprovarParaula(paraula, i, j, false);
+                        if (coords != null) {
+                            marcarParaulaTrobada(coords);
+                            return true;
+                        }
+                    }
+                }
             }
-            return true;
-        }else
-            return false;
+        }
+        return false;
     }
 
+    /**
+     * Marca la paraula com a trobada
+     * @param coords coordenades de la paraula
+     */
+    private static void marcarParaulaTrobada(int[][] coords) {
+    for (int i = 0; i < coords.length; i++) {
+            trobat[coords[i][0]][coords[i][1]] = true;
+        }
+    }
+
+    /**
+     * Cerca la paraula a partir d'una posició inicial en una direcció
+     * @param paraula a cercar
+     * @param i cordenada inicial fila
+     * @param j oordenada inicial columna
+     * @param vertical cert si cal cercar la paraula en vertical
+     * @return llista de coordenades de la paraula si la paraula ha estat trobada, null si no ha estat trobada
+     */
+    private static int[][] comprovarParaula(String paraula, int i, int j, boolean vertical) {
+        int[][] coords = new int[paraula.length()][2];
+        int k = 0;
+        while (k < paraula.length() ) {
+            if (i < sopa.length && j < sopa[i].length && sopa[i][j] == paraula.charAt(k)) {
+                coords[k][0] = i;
+                coords[k][1] = j;
+                if (vertical)
+                    i++;
+                else
+                    j++;
+                k++;
+            } else {
+                return null;
+            }
+        }
+        return coords;
+
+    }
 
 
     /**
