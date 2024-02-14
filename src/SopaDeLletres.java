@@ -1,31 +1,32 @@
 import Utils.Utils;
 
+import javax.xml.crypto.dsig.spec.ExcC14NParameterSpec;
+
 public class SopaDeLletres {
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_RESET = "\u001B[0m";
-
-    public static char[][] sopa;
-    public static boolean[][] trobat;
-
-    public static void main(String[] args) {
-        int trobades = 0;
-        System.out.println("Benvinguts a la sopa de lletres");
-        System.out.println("");
-        String cadena = Utils.LlegirString("Introdueix la cadena de 100 lletres:", 100, 100);
-        sopa = crearSopaDeLletres(cadena);
-        trobat = new boolean[sopa.length][sopa[0].length];
-        while (trobades < 5) {
-            mostrarSopaDeLletres();
-            String paraula = Utils.LlegirString("Introdueix la paraula a buscar:", 1, 10);
-            if (buscarParaula(paraula)) {
-                System.out.println("Paraula trobada");
-                trobades++;
-            } else {
-                System.out.println("Paraula no trobada");
+        public static void main(String[] args) {
+        try {
+            int trobades = 0;
+            System.out.println("Benvinguts a la sopa de lletres");
+            System.out.println("");
+            String cadena = Utils.LlegirString("Introdueix la cadena de 100 lletres:", 100, 100);
+            Sopa s = crearSopaDeLletres(cadena);
+            while (trobades < 5) {
+                mostrarSopaDeLletres(s);
+                String paraula = Utils.LlegirString("Introdueix la paraula a buscar:", 1, 10);
+                if (buscarParaula(s,paraula)) {
+                    System.out.println("Paraula trobada");
+                    trobades++;
+                } else {
+                    System.out.println("Paraula no trobada");
+                }
+                DataLayer.guardarSopaBytes(s);
             }
-
+            System.out.println("Has trobat totes les paraules");
+        }catch (Exception e){
+            System.out.println("ERROR :" + e.getMessage());
         }
-        System.out.println("Has trobat totes les paraules");
     }
 
     /**
@@ -33,18 +34,18 @@ public class SopaDeLletres {
      * @param paraula a buscar
      * @return true si la paraula ha estat trobada
      */
-    public static boolean buscarParaula(String paraula) {
-        for (int i = 0; i < sopa.length; i++) {
-            for (int j = 0; j < sopa[i].length; j++) {
-                if (sopa[i][j] == paraula.charAt(0)) {
-                    int[][] coords = comprovarParaula(paraula, i, j, true);
+    public static boolean buscarParaula(Sopa s,String paraula) {
+        for (int i = 0; i < s.sopa.length; i++) {
+            for (int j = 0; j < s.sopa[i].length; j++) {
+                if (s.sopa[i][j] == paraula.charAt(0)) {
+                    int[][] coords = comprovarParaula(s,paraula, i, j, true);
                     if (coords != null) {
-                        marcarParaulaTrobada(coords);
+                        marcarParaulaTrobada(s,coords);
                         return true;
                     } else {
-                        coords = comprovarParaula(paraula, i, j, false);
+                        coords = comprovarParaula(s,paraula, i, j, false);
                         if (coords != null) {
-                            marcarParaulaTrobada(coords);
+                            marcarParaulaTrobada(s,coords);
                             return true;
                         }
                     }
@@ -58,9 +59,9 @@ public class SopaDeLletres {
      * Marca la paraula com a trobada
      * @param coords coordenades de la paraula
      */
-    private static void marcarParaulaTrobada(int[][] coords) {
+    private static void marcarParaulaTrobada(Sopa s,int[][] coords) {
     for (int i = 0; i < coords.length; i++) {
-            trobat[coords[i][0]][coords[i][1]] = true;
+            s.trobat[coords[i][0]][coords[i][1]] = true;
         }
     }
 
@@ -72,11 +73,11 @@ public class SopaDeLletres {
      * @param vertical cert si cal cercar la paraula en vertical
      * @return llista de coordenades de la paraula si la paraula ha estat trobada, null si no ha estat trobada
      */
-    private static int[][] comprovarParaula(String paraula, int i, int j, boolean vertical) {
+    private static int[][] comprovarParaula(Sopa s,String paraula, int i, int j, boolean vertical) {
         int[][] coords = new int[paraula.length()][2];
         int k = 0;
         while (k < paraula.length() ) {
-            if (i < sopa.length && j < sopa[i].length && sopa[i][j] == paraula.charAt(k)) {
+            if (i < s.sopa.length && j < s.sopa[i].length && s.sopa[i][j] == paraula.charAt(k)) {
                 coords[k][0] = i;
                 coords[k][1] = j;
                 if (vertical)
@@ -96,11 +97,11 @@ public class SopaDeLletres {
     /**
      * Mostra la sopa de lletres per consola
      **/
-    private static void mostrarSopaDeLletres() {
+    private static void mostrarSopaDeLletres(Sopa s) {
         System.out.println("Sopa de lletres:");
-        for (int i = 0; i < sopa.length; i++) {
-            for (int j = 0; j < sopa[i].length; j++) {
-                pintarLletra(sopa[i][j], trobat[i][j],ANSI_RED);
+        for (int i = 0; i < s.sopa.length; i++) {
+            for (int j = 0; j < s.sopa[i].length; j++) {
+                pintarLletra(s.sopa[i][j], s.trobat[i][j],ANSI_RED);
                 System.out.print(" ");
             }
             System.out.println("");
@@ -126,9 +127,12 @@ public class SopaDeLletres {
      * @param cadena amb el condingut de la sopa de lletres
      * @return sopa de lletres de 10x10
      */
-    public static char[][] crearSopaDeLletres(String cadena) {
-        char[][] sopa = new char[10][10];
-        crearSopaDeLletresRecursiu(sopa, cadena, 0, 0);
+    public static Sopa crearSopaDeLletres(String cadena) {
+        char[][] s = new char[10][10];
+        crearSopaDeLletresRecursiu(s, cadena, 0, 0);
+        Sopa sopa = new Sopa();
+        sopa.sopa = s;
+        sopa.trobat = new boolean[sopa.sopa.length][sopa.sopa[0].length];
         return sopa;
     }
 
