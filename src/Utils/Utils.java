@@ -39,9 +39,6 @@ public class Utils {
     }
     public static String LlegirString(String missatge, int longitudMin, int longitudMax) {
         String result = null;
-        if (missatge != null) {
-            System.out.print(missatge);
-        }
         if (scan == null)
             scan = new Scanner(System.in);
         result = LlegirString(scan, missatge,longitudMin,longitudMax);
