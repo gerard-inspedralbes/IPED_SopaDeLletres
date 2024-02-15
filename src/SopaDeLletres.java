@@ -1,7 +1,5 @@
 import Utils.Utils;
 
-import javax.xml.crypto.dsig.spec.ExcC14NParameterSpec;
-
 public class SopaDeLletres {
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_RESET = "\u001B[0m";
@@ -10,8 +8,12 @@ public class SopaDeLletres {
             int trobades = 0;
             System.out.println("Benvinguts a la sopa de lletres");
             System.out.println("");
-            String cadena = Utils.LlegirString("Introdueix la cadena de 100 lletres:", 100, 100);
-            Sopa s = crearSopaDeLletres(cadena);
+            Sopa s = DataLayer.llegirSopaBytes();
+            if (s == null)
+            {
+                String cadena = Utils.LlegirString("Introdueix la cadena de 100 lletres:", 100, 100);
+                s = crearSopaDeLletres(cadena);
+            }
             while (trobades < 5) {
                 mostrarSopaDeLletres(s);
                 String paraula = Utils.LlegirString("Introdueix la paraula a buscar:", 1, 10);
@@ -22,6 +24,7 @@ public class SopaDeLletres {
                     System.out.println("Paraula no trobada");
                 }
                 DataLayer.guardarSopaBytes(s);
+                s = DataLayer.llegirSopaBytes();
             }
             System.out.println("Has trobat totes les paraules");
         }catch (Exception e){

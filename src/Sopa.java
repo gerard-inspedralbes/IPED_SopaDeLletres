@@ -15,4 +15,13 @@ public class Sopa {
         }
         return cadena;
     }
+
+    public void setSopa(String cadena) {
+        sopa = new char[10][10];
+        for (int i = 0; i < sopa.length; i++) {
+            for (int j = 0; j < sopa[i].length; j++) {
+                sopa[i][j] = cadena.charAt(i*10+j);
+            }
+        }
+    }
 }
