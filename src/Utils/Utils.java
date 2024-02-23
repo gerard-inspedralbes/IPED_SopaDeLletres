@@ -1,5 +1,6 @@
 package Utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -113,6 +114,7 @@ public class Utils {
             dadesCorrectes = scan.hasNextInt();
             if (dadesCorrectes) {
                 result = scan.nextInt();
+                scan.nextLine();
             } else if (scan.hasNext()) {
                 scan.nextLine();
             }
@@ -138,4 +140,16 @@ public class Utils {
         }
         return divisors;
     }
+
+    /**
+     * Sobrescriu un fitxer amb un altre
+     * @param nomArxiuAntic Nom del fitxer a sobrescriure
+     * @param nomArxiuAux Nom del fitxer amb el que serà sobrescrit l'antic
+     */
+    public static void sobreEscriureFitxer(String nomArxiuAntic, String nomArxiuAux) {
+            File arxiu_old = new File(nomArxiuAntic);
+            File arxiu_aux = new File(nomArxiuAux);
+            arxiu_old.delete();
+            arxiu_aux.renameTo(arxiu_old);
+        }
 }

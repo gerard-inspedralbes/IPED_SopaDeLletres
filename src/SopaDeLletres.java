@@ -1,10 +1,12 @@
 import Utils.Utils;
 
+import java.io.IOException;
+
 public class SopaDeLletres {
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_RESET = "\u001B[0m";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.out.println("Benvinguts a la sopa de lletres");
         boolean sortir = false;
         while (!sortir)
@@ -13,46 +15,80 @@ public class SopaDeLletres {
                     carregarSopes();
                     break;
                 case 2:
-                    jugar();
+                    System.out.println("LListat de sopes");
+                    int sopesExistents  = llistarSopes();
+                    if (sopesExistents > 0){
+
+                        int sopaDesitjada = Utils.LlegirInt("Quina sopa vols: ",1,sopesExistents);
+                        jugar(sopaDesitjada);
+                    }else{
+                        System.out.println("No hi ha sopes disponibles.");
+                    }
+                    break;
                 case 0:
                     sortir = true;
                     System.out.println("Adeu!");
+                    break;
             }
+    }
+
+    private static int llistarSopes() throws IOException {
+        int numSopa = 1;
+        Sopa s = null;
+        mostrarTitols();
+        do {
+            s = DataLayer.getSopa(numSopa);
+            if(s != null){
+                System.out.println(String.format("%2s - %12s - %15s", numSopa, s.getBrief(),s.estat()));
+                numSopa++;
+            }
+        }while (s != null);
+        return numSopa-1;
+    }
+
+    private static void mostrarTitols() {
+        System.out.println(String.format("%2s - %12s - %15s","ID", "SOPA","ESTAT"));
     }
 
     private static void carregarSopes() {
         try {
-            Sopa s = DataLayer.getSopa(1);
+            int sopesCarregades = 0;
+            Sopa s = null;
             do {
                 s = crearSopaDeLletres(DataLayer.llegirCadenaTXT());
-                DataLayer.guardarNovaSopaBytes(s);
+                if(DataLayer.guardarNovaSopaBytes(s)){
+                    sopesCarregades++;
+                }
             } while (s != null);
+            System.out.println("S'han carregat " + sopesCarregades + " sopes noves.");
         } catch (Exception e) {
             //System.out.println("ERROR :" + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private static void jugar() {
+    private static void jugar(int idsopa) {
         try {
-            Sopa s = DataLayer.getSopa(1);
-            if (s == null) {
-                System.out.println("No hi ha cap sopa creada, primer carregar un fitxer de sopes.");
-            }
-            int trobades = 0;
-            while (trobades < 5) {
+            Sopa s = DataLayer.getSopa(idsopa);
+
+            while (s.paraulesTrobades < 5) {
+                s = DataLayer.getSopa(idsopa);
                 mostrarSopaDeLletres(s);
-                String paraula = Utils.LlegirString("Introdueix la paraula a buscar:", 1, 10);
+                String paraula = Utils.LlegirString("Introdueix la paraula a buscar...\no intro per acabar:", 0, 10);
+                if(paraula.length() == 0){
+                    break;
+                }
                 if (buscarParaula(s, paraula)) {
                     System.out.println("Paraula trobada");
-                    trobades++;
+                    s.paraulesTrobades++;
                 } else {
                     System.out.println("Paraula no trobada");
                 }
-                DataLayer.guardarNovaSopaBytes(s);
-                //s = DataLayer.llegirSopaBytes();
+                DataLayer.guardarSopaBytes(s,idsopa);
             }
-            System.out.println("Has trobat totes les paraules");
+            if(s.paraulesTrobades == 5) {
+                System.out.println("Has trobat totes les paraules");
+            }
         } catch (Exception e) {
             //System.out.println("ERROR :" + e.getMessage());
             e.printStackTrace();

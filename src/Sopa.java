@@ -2,6 +2,8 @@ public class Sopa {
     public char[][] sopa;
     public boolean[][] trobat;
 
+    public int paraulesTrobades = 0;
+
     /**
      * Obtenim la sopa com a String (les 100 lletres seguides)
      * @return cadena sopa
@@ -22,6 +24,18 @@ public class Sopa {
             for (int j = 0; j < sopa[i].length; j++) {
                 sopa[i][j] = cadena.charAt(i*10+j);
             }
+        }
+    }
+
+    public String getBrief() {
+        return this.getCadenaSopa().substring(0,10);
+    }
+
+    public String estat() {
+        if (this.paraulesTrobades ==  5){
+            return "FINALITZADA";
+        }else{
+            return "EN CURS";
         }
     }
 }
